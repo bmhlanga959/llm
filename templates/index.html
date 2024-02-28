@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <title>AI Smart Tutor App</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body, html {
+            height: 100%; /* Make sure the body and html occupy full viewport height */
+            margin: 0; /* Remove default margin */
+            font-family: "Arial", sans-serif;
+            font-size:20px;
+            color: white;
+            font-weight: bold;
+            background-color: #000216;
+        }
+        .container {
+            height: auto; /* Allow container to expand as needed */
+            min-height: 100%; /* Minimum height to full viewport */
+            padding-bottom: 20px; /* Give some space at the bottom */
+        }
+        #chat-area {
+            border: 1px solid #000216;
+            padding: 5px;
+            height: 50vh; /* Use 50% of the viewport height */
+            overflow-y: scroll;
+            margin-bottom: 20px;
+            background-color: #000216;
+        }
+        .message {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            box-shadow: 0 0 1.5px #ccc;
+            font-size:20px;
+        }
+        .user-message {
+            background-color: #363636;
+            color: white;
+            font-family:Arial;
+            text-align: left;
+            font-size: 28px;
+        }
+        .tutor-message {
+            background-color: #3E424B;
+            color: white;
+            font-family:Arial;
+            text-align: left;
+            font-size: 28px;
+        }
+        .message-content {
+            font-size: 25px;
+            font-family: Arial;
+        }
+        .message-prefix {
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        #tutor-status {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .btn-primary {
+            background-color: transparent;
+            border-color: white;
+            color: white;
+        }
+        .btn-danger {
+            background-color: transparent;
+            border-color: white;
+            color: white;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        /* Modal styling */
+        .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgb(0,0,0); background-color: rgba(0,0,0,0.4); padding-top: 60px; }
+        .modal-content { background-color: #000; margin: 5% auto; padding: 20px; border: 1px solid #888; width: 80%; }
+        .close { color: #aaaaaa; float: right; font-size: 28px; font-weight: bold; }
+        .close:hover, .close:focus { color: #000; text-decoration: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AI Smart Tutor</h1>
+        <div id="tutor-status">Checking Tutor status...</div>
+        
+        <form method="POST">
+            <div class="form-group">
+                <input type="text" name="topic" class="form-control" placeholder="Enter a topic" value="{{topic if topic else ''}}">
+                <button type="submit" class="btn btn-primary">Start Chat</button>
+            </div>
+
+            {% if messages %}
+                <div id="chat-area"> 
+                    {% for message in messages %}
+                        <div class="message {{ 'user-message' if message.role == 'user' else 'tutor-message' }}">
+                            <span class="message-prefix">{{ 'User:' if message.role == 'user' else 'Tutor:' }}</span>
+                            <span class="message-content">{{ message.content }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+                <button type="button" onclick="copyChat()" class="btn btn-primary">Copy Chat</button>
+                <button type="button" onclick="deleteChat()" class="btn btn-danger">Delete Chat</button>
+                <div class="form-group">
+                    <input type="text" name="user_answer" class="form-control" placeholder="Your answer here">
+                    <button type="submit" class="btn btn-primary mt-1">Send</button> 
+                </div>
+            {% endif %}
+        </form>
+    </div>
+
+<script>
+    function updateTutorStatus() {
+        var statusElement = document.getElementById('tutor-status');
+        if (navigator.onLine) {
+            statusElement.textContent = 'Your Tutor is online';
+            statusElement.style.color = 'green';
+        } else {
+            statusElement.textContent = 'Your Tutor is offline';
+            statusElement.style.color = 'red';
+        }
+    }
+
+    function copyChat() {
+        const chatArea = document.getElementById('chat-area');
+        navigator.clipboard.writeText(chatArea.innerText).then(() => {
+            alert('Chat copied to clipboard!');
+        }, (err) => {
+            console.error('Failed to copy chat: ', err);
+        });
+    }
+
+    function deleteChat() {
+        const chatArea = document.getElementById('chat-area');
+        chatArea.innerHTML = ''; // Clears the chat area
+    }
+
+    window.addEventListener('load', updateTutorStatus);
+    window.addEventListener('online',  updateTutorStatus);
+    window.addEventListener('offline', updateTutorStatus);
+</script>
+
+</body>
+</html>
